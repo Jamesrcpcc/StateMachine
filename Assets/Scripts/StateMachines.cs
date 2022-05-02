@@ -4,25 +4,49 @@ using UnityEngine;
 
 public class StateMachines : MonoBehaviour
 {
+    public enum State
+    {
+        idle,
+        walking,
+        swimming,
+        climbing
+    }
+    public State currentState = State.idle;
+    Vector3 lastPosition;
     // Start is called before the first frame update
     void Start()
     {
-        
+        lastPosition = transform.position;
     }
 
     // Update is called once per frame
       
     void Update()
     {
-        Idle();
-    }
-    void onTriggerEnter(Collider other)
-    {
-        Debug.Log(other.name);
-        if (other.name == "Water")
+        switch(currentState)
         {
-            Swimming();
+            case State.idle: Idle(); break; 
+            case State.walking: Walking(); break;
+            case State.swimming: Swimming(); break;
+            case State.climbing: Climbing(); break;
+            default: break;
         }
+    }
+    void OnTriggerEnter(Collider other)
+    {
+        if(other.name == "Water")
+        {
+            currentState = State.swimming;
+        }
+        else if(other.name == "MountainTrigger")
+        {
+            currentState = State.climbing;
+        }
+       
+    }
+    void OnTriggerExit(Collider other)
+    {
+        currentState = State.walking;
     }
     void Swimming()
     {
@@ -35,5 +59,19 @@ public class StateMachines : MonoBehaviour
     void Idle()
     {
         Debug.Log("I am Idle");
+        if(lastPosition != transform.position)
+        {
+            currentState = State.walking;
+        }
+        lastPosition = transform.position;
+    }
+    void Walking()
+    {
+        Debug.Log("I am Walking");
+        if (lastPosition == transform.position)
+        {
+            currentState = State.idle;
+        }
+        lastPosition = transform.position;
     }
 }
